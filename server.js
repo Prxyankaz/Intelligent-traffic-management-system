@@ -6,7 +6,7 @@ const cors = require('cors');
 const admin = require("firebase-admin");
 const bodyParser = require('body-parser');
 
-envConfig(); // Load environment variables
+
 
 // Initialize Firebase Admin SDK
 admin.initializeApp({
