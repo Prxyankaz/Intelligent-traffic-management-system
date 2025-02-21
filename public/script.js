@@ -1,4 +1,4 @@
-const socket = io('https://traffic-management-backend.onrender.com');
+ const socket = io('https://traffic-management-backend.onrender.com');
  // Connect to backend
 
 // Emergency alert button

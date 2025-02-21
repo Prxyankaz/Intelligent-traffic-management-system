@@ -10,6 +10,19 @@ const io = socketIo(server, {
     cors: { origin: "*" }  // Allow all origins (change for security)
 });
 
+const admin = require("firebase-admin");
+const serviceAccount = require("./serviceAccountKey.json"); // Your Firebase service key
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://trafficmanagementsystem-dfb3e.firebaseio.com"
+});
+
+const db = admin.firestore();
+module.exports = { admin, db };
+
+
+
 // Enable CORS
 app.use(cors());
 
