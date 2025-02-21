@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Management System</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao&libraries=places&callback=initMap" async defer></script>
+   <style>
+        /* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+/* Header */
+header {
+    background: #333;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+}
+
+.header-icons {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    background: #ff4c4c;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+button:hover {
+    background: #e63939;
+}
+
+/* Navigation */
+nav {
+    background: #444;
+    padding: 10px;
+    text-align: center;
+}
+
+nav button {
+    margin: 5px;
+    background: #ff9800;
+}
+
+/* Map Section */
+#map {
+    width: 90%;
+    height: 400px;
+    margin: 20px auto;
+    border-radius: 10px;
+    border: 2px solid #ccc;
+}
+
+/* Emergency Alert Section */
+main {
+    text-align: center;
+    padding: 20px;
+}
+
+#alert-btn {
+    background: red;
+    font-size: 16px;
+}
+
+#alert-btn:hover {
+    background: darkred;
+}
+
+    </style>
+    
+</head>
+<body>
+
+    <header>
+        <h1>Traffic Management System</h1>
+        <div class="header-icons">
+            <button id="notification-btn">🔔</button>
+            <div class="profile-dropdown">
+                <button id="profile-btn">👤</button>
+                <div class="dropdown-content">
+                    <a href="#">View Profile</a>
+                    <a href="#">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <button onclick="location.href='traffic-analysis.html'">Traffic Analysis</button>
+        <button onclick="location.href='emergency-alerts.html'">Emergency Alerts</button>
+        <button onclick="location.href='challan-check.html'">Check Challan</button>
+    </nav>
+
+    <main>
+        <h2>Live Traffic Map</h2>
+        <div id="map"></div>
+
+        <h2>Emergency Vehicle Alert</h2>
+        <button id="alert-btn">🚨 Send Emergency Alert</button>
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
