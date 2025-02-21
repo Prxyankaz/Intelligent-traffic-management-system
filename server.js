@@ -83,6 +83,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
 
 // Function to load environment variables (if using dotenv)
-function envConfig() {
-    require('dotenv').config();
-}
