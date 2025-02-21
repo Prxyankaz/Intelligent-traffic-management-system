@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Emergency Driver Dashboard</title>
+</head>
+<body>
+    <h2>Emergency Vehicle Driver Dashboard</h2>
+    <button onclick="sendAlert()">🚨 Send Emergency Alert</button>
+    <script>
+        const socket = io('https://traffic-management-backend.onrender.com');
+        function sendAlert() {
+            socket.emit('emergencyAlert', { message: "Emergency Vehicle Approaching!" });
+        }
+    </script>
+</body>
+</html>
