@@ -1,4 +1,5 @@
-const socket = io('http://localhost:3000'); // Connect to backend
+const socket = io('https://traffic-management-backend.onrender.com');
+ // Connect to backend
 
 // Emergency alert button
 document.getElementById("alert-btn").addEventListener("click", () => {
