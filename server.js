@@ -11,7 +11,7 @@ const io = socketIo(server, {
 });
 
 const admin = require("firebase-admin");
-const serviceAccount = require("./serviceAccountKey.json"); // Your Firebase service key
+const serviceAccount = require("C:\Users\hpriy\Downloads\serviceAccountKey.json"); // Your Firebase service key
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
