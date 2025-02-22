@@ -5,8 +5,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const admin = require("firebase-admin");
 
-// Load environment variables
-require('dotenv').config();
+
 
 // Initialize Firebase Admin SDK
 admin.initializeApp({
