@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Traffic Management System</title>
     <link rel="stylesheet" href="style.css">
-
+    
     <!-- Firebase and Google Maps API -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao&libraries=places&callback=initMap" async defer></script>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
@@ -24,11 +24,113 @@
             messagingSenderId: "1095767209218",
             appId: "1:1095767209218:web:7dbbec59d2318537f2be1b"
         };
-
+        
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
     </script>
+
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Header */
+        header {
+            background: #333;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background: #ff4c4c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #e63939;
+        }
+
+        /* Navigation */
+        nav {
+            background: #444;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav button {
+            margin: 5px;
+            background: #ff9800;
+        }
+
+        /* Map Section */
+        #map {
+            width: 90%;
+            height: 400px;
+            margin: 20px auto;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+        }
+
+        /* Emergency Alert Section */
+        main {
+            text-align: center;
+            padding: 20px;
+        }
+
+        #alert-btn {
+            background: red;
+            font-size: 16px;
+        }
+
+        #alert-btn:hover {
+            background: darkred;
+        }
+
+        /* Login/Register Form */
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .container input, .container select {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .container button {
+            width: 100%;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -64,23 +166,68 @@
         <button id="alert-btn">🚨 Send Emergency Alert</button>
     </main>
 
+    <!-- Login/Register Form -->
+    <div class="container" id="login-container">
+        <h2>Login</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button id="loginBtn">Login</button>
+        <p>Don't have an account? <a href="#" id="showRegister">Register</a></p>
+    </div>
+
+    <div class="container hidden" id="register-container">
+        <h2>Register</h2>
+        <input type="email" id="register-email" placeholder="Email">
+        <input type="password" id="register-password" placeholder="Password">
+        <select id="user-type">
+            <option value="normal">Normal User</option>
+            <option value="emergency">Emergency Vehicle User</option>
+        </select>
+        <button id="registerBtn">Register</button>
+        <p>Already have an account? <a href="#" id="showLogin">Login</a></p>
+    </div>
+
+    <!-- JavaScript -->
     <script>
-        // Initialize Socket.io
-        const socket = io();
+        document.getElementById("loginBtn").addEventListener("click", () => {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
 
-        document.getElementById("alert-btn").addEventListener("click", () => {
-            socket.emit("emergencyAlert", { alert: true });
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    alert("Login successful!");
+                    document.getElementById("login-container").classList.add("hidden");
+                    document.getElementById("main-content").classList.remove("hidden");
+                })
+                .catch((error) => alert("Error: " + error.message));
         });
 
-        socket.on("showAlert", (data) => {
-            alert(data.message);
+        document.getElementById("registerBtn").addEventListener("click", () => {
+            const email = document.getElementById("register-email").value;
+            const password = document.getElementById("register-password").value;
+            const userType = document.getElementById("user-type").value;
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(async (userCredential) => {
+                    await db.collection("users").doc(userCredential.user.uid).set({
+                        email: email,
+                        userType: userType
+                    });
+                    alert("Registration successful!");
+                    document.getElementById("register-container").classList.add("hidden");
+                    document.getElementById("login-container").classList.remove("hidden");
+                })
+                .catch((error) => alert("Error: " + error.message));
         });
 
-        // Logout
-        document.getElementById("logoutBtn").addEventListener("click", () => {
-            auth.signOut().then(() => {
-                window.location.href = "login.html";
-            });
+        document.getElementById("showRegister").addEventListener("click", () => {
+            document.getElementById("login-container").classList.add("hidden");
+            document.getElementById("register-container").classList.remove("hidden");
+        });
+
+        document.getElementById("showLogin").addEventListener("click", () => {
+            document.getElementById("register-container").classList.add("hidden");
+            document.getElementById("login-container").classList.remove("hidden");
         });
     </script>
 
