@@ -7,7 +7,7 @@ const admin = require("firebase-admin");
 
 
 
-// Initialize Firebase Admin SDK
+// ✅ Initialize Firebase Admin SDK
 admin.initializeApp({
     credential: admin.credential.cert({
         type: process.env.FIREBASE_TYPE,
@@ -20,23 +20,22 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, { cors: { origin: "*" } });
 
-// Enable CORS
+// ✅ Enable CORS
 app.use(cors());
 
-// Serve static files
-app.use(express.static(path.join(__dirname, '../public')));
+// ✅ Serve static files correctly
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Route to serve login page
+// ✅ Serve login page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public', 'login.html'));
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// WebSocket Handling
+// ✅ WebSocket Handling
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
@@ -50,8 +49,8 @@ io.on('connection', (socket) => {
     });
 });
 
-// Start Server
+// ✅ Use dynamic PORT for Render
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
 module.exports = { admin, db };
