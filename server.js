@@ -3,44 +3,41 @@ const http = require('http');
 const path = require('path');
 const socketIo = require('socket.io');
 const cors = require('cors');
+const admin = require("firebase-admin");
+
+// Load environment variables
+require('dotenv').config();
+
+// Initialize Firebase Admin SDK
+admin.initializeApp({
+    credential: admin.credential.cert({
+        type: process.env.FIREBASE_TYPE,
+        project_id: process.env.FIREBASE_PROJECT_ID,
+        private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        client_email: process.env.FIREBASE_CLIENT_EMAIL,
+        token_uri: process.env.FIREBASE_TOKEN_URI,
+    }),
+    databaseURL: process.env.FIREBASE_DATABASE_URL
+});
+
+const db = admin.firestore();
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: { origin: "*" }  // Allow all origins (change for security)
-});
-
-const admin = require("firebase-admin");
-
-admin.initializeApp({
-  credential: admin.credential.cert({
-    type: process.env.FIREBASE_TYPE,
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    token_uri: process.env.FIREBASE_TOKEN_URI,
-  }),
-  databaseURL: process.env.FIREBASE_DATABASE_URL
-});
-
-
-const db = admin.firestore();
-module.exports = { admin, db };
-
-
+const io = socketIo(server, { cors: { origin: "*" } });
 
 // Enable CORS
 app.use(cors());
 
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files
+app.use(express.static(path.join(__dirname, '../public')));
 
-// Route to serve index.html
+// Route to serve login page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '../public', 'login.html'));
 });
 
-// WebSocket handling
+// WebSocket Handling
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
@@ -54,6 +51,8 @@ io.on('connection', (socket) => {
     });
 });
 
-// Start the server
+// Start Server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+
+module.exports = { admin, db };
