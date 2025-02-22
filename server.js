@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ✅ Serve login page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ✅ WebSocket Handling
