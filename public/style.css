@@ -1,0 +1,84 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: url('mountain-peak-above-3840x2160-12251.jpg') no-repeat center center/cover;
+    position: relative;
+}
+
+/* Container */
+.container {
+    position: relative;
+    width: 350px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* Headings */
+.container h2 {
+    color: white;
+    margin-bottom: 20px;
+}
+
+/* Input Box */
+.input-box {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.input-box input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    font-size: 16px;
+}
+
+/* Button */
+.btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: white;
+    color: black;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #f8d347;
+}
+
+/* Switch Page Links */
+.switch-page {
+    margin-top: 10px;
+    color: white;
+    font-size: 14px;
+}
+
+.switch-page a {
+    color: #f8d347;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.switch-page a:hover {
+    text-decoration: underline;
+}
