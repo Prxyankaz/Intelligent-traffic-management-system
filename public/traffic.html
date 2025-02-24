@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Management System</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Traffic Management System</h1>
+        <button id="logout-btn">Logout</button>
+    </header>
+
+    <main>
+        <h2>Live Traffic Map</h2>
+        <div id="map"></div>
+
+        <h2>Emergency Vehicle Alert</h2>
+        <button id="alert-btn">🚨 Send Emergency Alert</button>
+    </main>
+
+    <script>
+        // Redirect if not logged in
+        if (!localStorage.getItem("token")) {
+            window.location.href = "index.html";
+        }
+
+        // Logout
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            localStorage.removeItem("token");
+            window.location.href = "index.html";
+        });
+
+        // WebSocket connection
+        const socket = io();
+
+        document.getElementById("alert-btn").addEventListener("click", () => {
+            socket.emit("emergencyAlert", { message: "Emergency Alert Sent!" });
+        });
+
+        socket.on("showAlert", (data) => {
+            alert(data.message);
+        });
+    </script>
+</body>
+</html>
