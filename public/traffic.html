@@ -6,6 +6,15 @@
     <title>Traffic Management System</title>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <style>
+        #map {
+    width: 80%;
+    height: 400px;  /* Ensure this is not 0 */
+    background: #1e1e1e;
+    border-radius: 10px;
+    margin: 0 auto;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
         /* General Styles */
         body {
             margin: 0;
@@ -81,6 +90,9 @@
         <h2>Emergency Vehicle Alert</h2>
         <button id="alert-btn">🚨 Send Emergency Alert</button>
     </main>
+    <script async defer 
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
+    </script>
 
     <script>
         // Redirect if not logged in
