@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Traffic Management System</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao&libraries=places&callback=initMap" async defer></script>
+
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <style>
         #map {
@@ -90,9 +92,7 @@
         <h2>Emergency Vehicle Alert</h2>
         <button id="alert-btn">🚨 Send Emergency Alert</button>
     </main>
-    <script async defer 
-    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
-    </script>
+   
 
     <script>
         // Redirect if not logged in
