@@ -28,6 +28,10 @@ app.use("/auth", authRoutes);
 app.get("/traffic.html", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "traffic.html"));
 });
+app.get("/register.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "register.html"));
+});
+
 
 // ✅ WebSocket Handling
 io.on("connection", (socket) => {
