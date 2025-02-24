@@ -32,6 +32,10 @@ app.get("/register.html", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "register.html"));
 });
 
+app.use((err, req, res, next) => {
+    console.error("❌ Server Error:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+});
 
 // ✅ WebSocket Handling
 io.on("connection", (socket) => {
