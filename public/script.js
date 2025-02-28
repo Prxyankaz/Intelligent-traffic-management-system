@@ -10,15 +10,24 @@ document.getElementById("alert-btn").addEventListener("click", () => {
 socket.on('showAlert', (data) => {
     alert(data.message); // Shows alert to all logged-in users
 });
+window.onload = function () {
+    if (typeof google !== 'undefined' && google.maps) {
+        console.log("Google Maps API Loaded Successfully");
+        initMap();
+    } else {
+        console.error("Google Maps API failed to load. Check your API key.");
+    }
+};
+
 function initMap() {
-    var map = new google.maps.Map(document.getElementById('map'), {
-        center: { lat: 28.6139, lng: 77.2090 }, // New Delhi example
-        zoom: 12
+    const map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 12.9716, lng: 77.5946 }, // Default location (Bangalore)
+        zoom: 12,
     });
 
-    var trafficLayer = new google.maps.TrafficLayer();
-    trafficLayer.setMap(map);
+    console.log("Map initialized successfully.");
 }
+
 
 // Firebase Config
 const firebaseConfig = {
