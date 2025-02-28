@@ -6,225 +6,248 @@
     <title>Traffic Management System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbKNlawat2itlX17sSEwIAFIwW8Ax-9LQ&libraries=places" async defer></script>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <link rel="stylesheet" href="styles.css"> 
-<style>
-/* General Page Styling */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Poppins', sans-serif;
-    background: url('i1.jpg') no-repeat center center fixed;
-    background-size: cover;
-    color: white;
-    overflow-x: hidden;
-}
-
-/* Navigation Bar */
-nav {
-    position: fixed;
-    top: 0;
-    width: 95%;
-    padding: 10px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    z-index: 1000;
-}
-
-.logo {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 22px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    color: #ffcc00;
-}
-
-/* Menu for larger screens */
-nav ul {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-nav ul li {
-    display: inline-block;
-}
-
-nav ul li a, #logout-btn {
-    text-decoration: none;
-    color: white;
-    font-size: 16px;
-    transition: 0.3s;
-    text-transform: uppercase;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 10px 15px;
-}
-
-nav ul li a:hover, #logout-btn:hover {
-    color: #ffcc00;
-}
-
-/* Mobile Menu */
-.menu-icon {
-    display: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: white;
-}
-
-#menu-toggle {
-    display: none;
-}
-
-@media screen and (max-width: 768px) {
-    nav {
-        padding: 15px 20px;
-    }
-    
-    .menu-icon {
-        display: block;
-    }
-
-    nav ul {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        top: 60px;
-        right: 20px;
-        background: rgba(0, 0, 0, 0.9);
-        width: 200px;
-        border-radius: 10px;
-        text-align: center;
-        padding: 10px;
-    }
-
-    #menu-toggle:checked + ul {
-        display: flex;
-    }
-
-    nav ul li {
-        margin: 10px 0;
-    }
-}
-
-/* Hero Section */
-.hero {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    text-align: center;
-    padding: 0 20px;
-    flex-direction: column;
-}
-
-.hero h1 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    text-transform: uppercase;
-    font-weight: bold;
-    background: linear-gradient(to right, #ffffff, #cccccc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.hero p {
-    font-size: clamp(1rem, 2vw, 1.5rem);
-}
-
-/* Emergency Alert Button */
-#alert-btn {
-    background: red;
-    color: white;
-    padding: 10px 25px;
-    border: none;
-    border-radius: 5px;
-    font-size: 18px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-#alert-btn:hover {
-    background: darkred;
-}
-
-/* Responsive Map */
-
-#map {
-    width: 100%;
-    max-width: 900px;
-    height: 400px;
-    margin: 50px auto 20px;
-    border-radius: 10px;
-    position: relative;
-    z-index: 1;
-}
-.live-traffic {
-    text-align: center;
-    padding: 50px 20px;
-    position: relative;
-}
-
-.live-traffic h2 {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 24px;
-    font-weight: bold;
-    color: white;
-    z-index: 2;
-}
-
-/* Adjustments for Mobile Screens */
-@media screen and (max-width: 600px) {
-    nav ul {
-        width: 180px;
-    }
-
-    .hero {
-        height: 80vh;
-    }
-
-    #map {
-        height: 300px;
-    }
-
-    #alert-btn {
-        width: 100%;
-        font-size: 16px;
-    }
-}
-.button {
-    display: inline-block;
-    padding: 12px 40px;
-    font-size: 18px;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: white;
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid white;
-    border-radius: 50px;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease-in-out;
-    cursor: pointer;
-    letter-spacing: 2px;
-}
-
-.button:hover {
-    background: white;
-    color: black;
-    transform: scale(1.1);
-}
-
-</style>
+    <style>
+        /* General Page Styling */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        /* Background Video */
+        .video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        #bg-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: cover;
+        }
+        
+        /* Navigation Bar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 95%;
+            padding: 10px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #ffcc00;
+        }
+        
+        /* Menu for larger screens */
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        nav ul li {
+            display: inline-block;
+        }
+        
+        nav ul li a, #logout-btn {
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+            transition: 0.3s;
+            text-transform: uppercase;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px 15px;
+        }
+        
+        nav ul li a:hover, #logout-btn:hover {
+            color: #ffcc00;
+        }
+        
+        /* Mobile Menu */
+        .menu-icon {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+        }
+        
+        #menu-toggle {
+            display: none;
+        }
+        
+        @media screen and (max-width: 768px) {
+            nav {
+                padding: 15px 20px;
+            }
+            
+            .menu-icon {
+                display: block;
+            }
+        
+            nav ul {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.9);
+                width: 200px;
+                border-radius: 10px;
+                text-align: center;
+                padding: 10px;
+            }
+        
+            #menu-toggle:checked + ul {
+                display: flex;
+            }
+        
+            nav ul li {
+                margin: 10px 0;
+            }
+        }
+        
+        /* Hero Section */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            padding: 0 20px;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            text-transform: uppercase;
+            font-weight: bold;
+            background: linear-gradient(to right, #ffffff, #cccccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+        }
+        
+        /* Emergency Alert Button */
+        #alert-btn {
+            background: red;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        #alert-btn:hover {
+            background: darkred;
+        }
+        
+        /* Responsive Map */
+        #map {
+            width: 100%;
+            max-width: 900px;
+            height: 400px;
+            margin: 50px auto 20px;
+            border-radius: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .live-traffic {
+            text-align: center;
+            padding: 50px 20px;
+            position: relative;
+        }
+        
+        .live-traffic h2 {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            z-index: 2;
+        }
+        
+        /* Adjustments for Mobile Screens */
+        @media screen and (max-width: 600px) {
+            nav ul {
+                width: 180px;
+            }
+        
+            .hero {
+                height: 80vh;
+            }
+        
+            #map {
+                height: 300px;
+            }
+        
+            #alert-btn {
+                width: 100%;
+                font-size: 16px;
+            }
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 12px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            letter-spacing: 2px;
+        }
+        
+        .button:hover {
+            background: white;
+            color: black;
+            transform: scale(1.1);
+        }
+        
+        </style>
 </head>
 <body>
     <nav>
