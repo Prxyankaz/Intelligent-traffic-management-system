@@ -11,45 +11,60 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, { cors: { origin: "*" } });
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// ✅ Connect to MongoDB
+// ✅ Connect to MongoDB Atlas
 mongoose
     .connect(process.env.MONGO_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
+        dbName: "TrafficDB"
     })
     .then(() => console.log("✅ Connected to MongoDB"))
     .catch((err) => console.error("❌ MongoDB connection error:", err));
 
+// ✅ Authentication Routes
 app.use("/auth", authRoutes);
 
-// ✅ Serve Traffic Management System pages
-app.get("/traffic.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "traffic.html"));
+// ✅ Serve Static Pages with Role-Based Redirection
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
-app.get("/register.html", (req, res) => {
+app.get("/register", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "register.html"));
+});
+app.get("/dashboard", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "dashboard.html")); // Normal User
+});
+app.get("/traffic", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "traffic.html")); // Emergency Vehicle Driver
+});
+app.get("/admin", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "admin.html")); // Admin Page
 });
 
 // ✅ Secure API Key Endpoint
 app.get("/api/maps-key", (req, res) => {
+    if (!process.env.GOOGLE_MAPS_API_KEY) {
+        return res.status(500).json({ message: "Google Maps API key not set" });
+    }
     res.json({ apiKey: process.env.GOOGLE_MAPS_API_KEY });
 });
 
-// ✅ WebSocket Handling
+// ✅ WebSocket Handling for Emergency Alerts
 io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
+    console.log("✅ User connected:", socket.id);
 
     socket.on("emergencyAlert", (data) => {
-        console.log("Emergency Alert:", data);
+        console.log("🚨 Emergency Alert Received:", data);
         io.emit("showAlert", { message: "🚨 Emergency Alert! Clear the way for an emergency vehicle." });
     });
 
     socket.on("disconnect", () => {
-        console.log("User disconnected:", socket.id);
+        console.log("❌ User disconnected:", socket.id);
     });
 });
 

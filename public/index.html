@@ -46,7 +46,15 @@
             const data = await res.json();
             if (data.token) {
                 localStorage.setItem("token", data.token);
-                window.location.href = "traffic.html";
+                
+                // Role-based redirection
+                if (role === "user") {
+                    window.location.href = "dashboard.html";
+                } else if (role === "driver") {
+                    window.location.href = "traffic.html";
+                } else if (role === "admin") {
+                    window.location.href = "admin.html";
+                }
             } else {
                 alert(data.message);
             }
