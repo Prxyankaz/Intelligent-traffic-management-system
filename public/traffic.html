@@ -255,7 +255,7 @@ nav ul li a:hover, #logout-btn:hover {
     </main>
 
     <script>
-        const socket = io("http://localhost:3000"); // Change URL if deployed
+        const socket = io("https://traffic-management-backend.onrender.com"); // Change URL if deployed
 
         document.getElementById("alert-btn").addEventListener("click", () => {
             socket.emit("emergencyAlert", { message: "🚨 Emergency Alert: Clear the road for an emergency vehicle!" });

@@ -82,7 +82,7 @@
         });
 
         // WebSocket Connection
-        const socket = io("http://localhost:3000"); // Change URL if deployed
+        const socket = io("https://traffic-management-backend.onrender.com"); // Change URL if deployed
 
         socket.on("showAlert", (data) => {
             alert(data.message);
