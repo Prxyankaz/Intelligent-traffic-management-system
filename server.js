@@ -11,7 +11,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, { cors: { origin: "*" } });
 
-// Middleware
+// ✅ Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
@@ -30,21 +30,11 @@ mongoose
 app.use("/auth", authRoutes);
 
 // ✅ Serve Static Pages with Role-Based Redirection
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-app.get("/register", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "register.html"));
-});
-app.get("/dashboard", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "dashboard.html")); // Normal User
-});
-app.get("/traffic", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "traffic.html")); // Emergency Vehicle Driver
-});
-app.get("/admin", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "admin.html")); // Admin Page
-});
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
+app.get("/register", (req, res) => res.sendFile(path.join(__dirname, "public", "register.html")));
+app.get("/dashboard", (req, res) => res.sendFile(path.join(__dirname, "public", "dashboard.html"))); // Normal User
+app.get("/traffic", (req, res) => res.sendFile(path.join(__dirname, "public", "traffic.html"))); // Emergency Vehicle Driver
+app.get("/admin", (req, res) => res.sendFile(path.join(__dirname, "public", "admin.html"))); // Admin Page
 
 // ✅ Secure API Key Endpoint
 app.get("/api/maps-key", (req, res) => {
@@ -56,15 +46,15 @@ app.get("/api/maps-key", (req, res) => {
 
 // ✅ WebSocket Handling for Emergency Alerts
 io.on("connection", (socket) => {
-    console.log("✅ User connected:", socket.id);
+    console.log("✅ A user connected:", socket.id);
 
     socket.on("emergencyAlert", (data) => {
-        console.log("🚨 Emergency Alert Received:", data);
-        io.emit("showAlert", { message: "🚨 Emergency Alert! Clear the way for an emergency vehicle." });
+        console.log("🚨 Emergency alert received:", data);
+        io.emit("showAlert", { message: "🚨 Emergency Alert Received!" }); // Broadcast to all users
     });
 
     socket.on("disconnect", () => {
-        console.log("❌ User disconnected:", socket.id);
+        console.log("❌ A user disconnected:", socket.id);
     });
 });
 

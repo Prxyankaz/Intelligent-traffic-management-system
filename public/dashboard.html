@@ -7,6 +7,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script>
+        const socket = io("https://traffic-management-backend.onrender.com"); // Replace with your backend WebSocket server URL
+
+// Listen for emergency alert events from the server
+socket.on("showAlert", (data) => {
+    alert(data.message); // This should trigger the popup when an alert is received
+});
+
         fetch('https://traffic-management-backend.onrender.com/api/maps-key')
         .then(response => response.json())
         .then(data => {
