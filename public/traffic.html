@@ -256,7 +256,10 @@ nav ul li a:hover, #logout-btn:hover {
 
     <script>
         const socket = io("https://traffic-management-backend.onrender.com"); // Change URL if deployed
-
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            localStorage.removeItem("token");
+            window.location.href = "index.html";
+        });
         document.getElementById("alert-btn").addEventListener("click", () => {
             socket.emit("emergencyAlert", { message: "🚨 Emergency Alert: Clear the road for an emergency vehicle!" });
             alert("Emergency Alert Sent!");
