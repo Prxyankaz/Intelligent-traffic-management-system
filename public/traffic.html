@@ -8,17 +8,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script>
         fetch('https://traffic-management-backend.onrender.com/api/maps-key')
-        .then(response => response.json())
-        .then(data => {
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&callback=initMap&libraries=places`;
-            script.async = true;
-            script.defer = true;
-            document.head.appendChild(script);
-            window.initMap = initMap;
-        })
-        .catch(error => console.error('Error loading API key:', error));
-    
+    .then(response => response.json())
+    .then(data => {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&callback=initMap&libraries=places`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+    })
+    .catch(error => console.error('Error loading API key:', error));
+
+function initMap() {
+    console.log("Google Maps API loaded successfully");
+
+    // Create a new map instance
+    const map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 12.9716, lng: 77.5946 }, // Default location (Bangalore)
+        zoom: 12, // Adjust zoom level as needed
+    });
+
+    // Example: Adding a marker (You can update the coordinates)
+    new google.maps.Marker({
+        position: { lat: 12.9716, lng: 77.5946 },
+        map: map,
+        title: "Default Location",
+    });
+
+    // Optional: Add Traffic Layer
+    const trafficLayer = new google.maps.TrafficLayer();
+    trafficLayer.setMap(map);
+}
+
     </script>
     
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
