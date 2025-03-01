@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     role: { 
         type: String, 
         required: true, 
-        enum: ["normal", "emergency", "admin"], // ✅ Added "admin" role
+        enum: ["user", "driver", "admin"], // ✅ Added "admin" role
         default: "normal" 
     }
 });
