@@ -15,16 +15,18 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-.then(() => console.log("✅ Connected to MongoDB"))
-.catch((err) => console.error("❌ MongoDB connection error:", err));
+// ✅ Connect to MongoDB
+mongoose
+    .connect(process.env.MONGO_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
+    .then(() => console.log("✅ Connected to MongoDB"))
+    .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 app.use("/auth", authRoutes);
 
-// ✅ Serve Traffic Management System page
+// ✅ Serve Traffic Management System pages
 app.get("/traffic.html", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "traffic.html"));
 });
@@ -32,9 +34,9 @@ app.get("/register.html", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "register.html"));
 });
 
-app.use((err, req, res, next) => {
-    console.error("❌ Server Error:", err);
-    res.status(500).json({ message: "Internal Server Error" });
+// ✅ Secure API Key Endpoint
+app.get("/api/maps-key", (req, res) => {
+    res.json({ apiKey: process.env.GOOGLE_MAPS_API_KEY });
 });
 
 // ✅ WebSocket Handling
@@ -51,5 +53,12 @@ io.on("connection", (socket) => {
     });
 });
 
+// ✅ Global Error Handling
+app.use((err, req, res, next) => {
+    console.error("❌ Server Error:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+});
+
+// ✅ Start Server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

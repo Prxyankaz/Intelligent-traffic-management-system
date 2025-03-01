@@ -6,7 +6,19 @@
     <title>Traffic Management System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbKNlawat2itlX17sSEwIAFIwW8Ax-9LQ&libraries=places" async defer></script>
+    <script>
+        fetch('https://traffic-management-backend.onrender.com/api/maps-key')
+            .then(response => response.json())
+            .then(data => {
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&libraries=places`;
+                script.async = true;
+                script.defer = true;
+                document.head.appendChild(script);
+            })
+            .catch(error => console.error('Error loading API key:', error));
+    </script>
+    
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <link rel="stylesheet" href="styles.css"> 
 <style>
