@@ -45,16 +45,44 @@ app.get("/api/maps-key", (req, res) => {
 });
 
 // ✅ WebSocket Handling for Emergency Alerts
+const usersByPage = { dashboard: [], traffic: [], admin: [] };
+
 io.on("connection", (socket) => {
     console.log("✅ A user connected:", socket.id);
 
-    socket.on("emergencyAlert", (data) => {
-        console.log("🚨 Emergency alert received:", data);
-        io.emit("showAlert", { message: "🚨 Emergency Alert Received!" }); // Broadcast to all users
+    // 📌 Handle page selection by user
+    socket.on("joinPage", (page) => {
+        console.log(`👤 User ${socket.id} joined ${page} page`);
+
+        // Remove from any previous page list
+        Object.keys(usersByPage).forEach((key) => {
+            usersByPage[key] = usersByPage[key].filter((id) => id !== socket.id);
+        });
+
+        // Add to the correct page
+        if (usersByPage[page]) {
+            usersByPage[page].push(socket.id);
+        }
     });
 
+    // 📌 Handle Emergency Alerts
+    socket.on("emergencyAlert", (data) => {
+        console.log("🚨 Emergency alert received:", data);
+
+        // Send alert ONLY to users on dashboard and admin pages
+        [...usersByPage.dashboard, ...usersByPage.admin].forEach((id) => {
+            io.to(id).emit("showAlert", { message: "🚨 Emergency Alert! Clear the way for an emergency vehicle." });
+        });
+    });
+
+    // 📌 Handle Disconnection
     socket.on("disconnect", () => {
         console.log("❌ A user disconnected:", socket.id);
+
+        // Remove from all page lists
+        Object.keys(usersByPage).forEach((key) => {
+            usersByPage[key] = usersByPage[key].filter((id) => id !== socket.id);
+        });
     });
 });
 

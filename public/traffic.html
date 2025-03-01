@@ -308,10 +308,13 @@ nav ul li a:hover, #logout-btn:hover {
         document.getElementById("alert-btn").addEventListener("click", () => {
             socket.emit("emergencyAlert", { message: "Emergency Alert Sent!" });
         });
+        socket.emit("joinPage", "dashboard");  // Change page name based on user type
+
 
         socket.on("showAlert", (data) => {
             alert(data.message);
         });
+
     </script>
 </body>
 </html>
