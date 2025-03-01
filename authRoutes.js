@@ -41,7 +41,7 @@ router.post("/register", async (req, res) => {
 // ✅ User Login
 router.post("/login", async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, role } = req.body;
 
         // Check if user exists
         const user = await User.findOne({ email }).select("+password");
@@ -51,10 +51,15 @@ router.post("/login", async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-        // Generate JWT token
+        // Validate role (prevent users from switching roles manually)
+        if (user.role !== role) {
+            return res.status(403).json({ message: `Access denied for role: ${role}` });
+        }
+
+        // Generate JWT token including role
         const token = jwt.sign(
-            { userId: user._id, role: user.role }, // Include role in token
-            process.env.JWT_SECRET,
+            { userId: user._id, role: user.role }, 
+            process.env.JWT_SECRET, 
             { expiresIn: "1h" }
         );
 
@@ -64,6 +69,7 @@ router.post("/login", async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+
 
 
 // ✅ Fetch Current User Role (For Frontend)
