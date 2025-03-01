@@ -8,20 +8,29 @@
 </head>
 <body>
     <div class="container">
-        <h2>Register</h2>
+        <h2>Join the Traffic Management System</h2>
+        <p>Register to access smart traffic solutions tailored for you.</p>
         <form id="register-form">
             <div class="input-box">
-                <input type="text" id="register-username" placeholder="Username" required>
+                <input type="text" id="register-username" placeholder="Enter Your Username" required>
             </div>
             <div class="input-box">
-                <input type="email" id="register-email" placeholder="Email" required>
+                <input type="email" id="register-email" placeholder="Enter Your Email" required>
             </div>
             <div class="input-box">
-                <input type="password" id="register-password" placeholder="Password" required>
+                <input type="password" id="register-password" placeholder="Create a Secure Password" required>
             </div>
-            <button class="btn" type="submit">Register</button>
+            <div class="input-box">
+                <label for="register-role">Select Your Role:</label>
+                <select id="register-role" required>
+                    <option value="user">Normal User</option>
+                    <option value="driver">Emergency Vehicle Driver</option>
+                    <option value="admin">Administrator</option>
+                </select>
+            </div>
+            <button class="btn" type="submit">Create Account</button>
         </form>
-        <p class="switch-page">Already have an account? <a href="index.html">Login here</a></p>
+        <p class="switch-page">Already have an account? <a href="login.html">Login here</a></p>
     </div>
 
     <script>
@@ -30,11 +39,12 @@
             const username = document.getElementById("register-username").value;
             const email = document.getElementById("register-email").value;
             const password = document.getElementById("register-password").value;
+            const role = document.getElementById("register-role").value;
 
             const res = await fetch("/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, email, password }),
+                body: JSON.stringify({ username, email, password, role }),
             });
 
             const data = await res.json();
