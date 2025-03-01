@@ -7,45 +7,56 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script>
-        const socket = io("https://traffic-management-backend.onrender.com"); // Replace with your backend WebSocket server URL
-
-// Listen for emergency alert events from the server
-socket.on("showAlert", (data) => {
-    alert(data.message); // This should trigger the popup when an alert is received
-});
-
-        fetch('https://traffic-management-backend.onrender.com/api/maps-key')
-        .then(response => response.json())
-        .then(data => {
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&callback=initMap&libraries=places`;
-            script.async = true;
-            script.defer = true;
-            document.head.appendChild(script);
-        })
-        .catch(error => console.error('Error loading API key:', error));
-
+        const socket = io("https://traffic-management-backend.onrender.com"); // WebSocket connection
+        socket.on("showAlert", (data) => {
+            alert(data.message); // This should trigger the popup when an alert is received
+        });
+        // ✅ Ensure Google Maps initializes properly
         function initMap() {
-            console.log("Google Maps API loaded successfully");
-
+            console.log("✅ Google Maps API loaded successfully");
+    
             // Create a new map instance
             const map = new google.maps.Map(document.getElementById("map"), {
                 center: { lat: 12.9716, lng: 77.5946 }, // Default location (Bangalore)
-                zoom: 12, // Adjust zoom level as needed
+                zoom: 12,
             });
-
-            // Example: Adding a marker (You can update the coordinates)
+    
+            // Add a marker at the default location
             new google.maps.Marker({
                 position: { lat: 12.9716, lng: 77.5946 },
                 map: map,
                 title: "Default Location",
             });
-
-            // Optional: Add Traffic Layer
+    
+            // Add Traffic Layer
             const trafficLayer = new google.maps.TrafficLayer();
             trafficLayer.setMap(map);
         }
+    
+        // ✅ Fetch API Key and Load Google Maps
+        fetch("https://traffic-management-backend.onrender.com/api/maps-key")
+            .then(response => response.json())
+            .then(data => {
+                if (!data.apiKey) {
+                    console.error("❌ API Key not found");
+                    return;
+                }
+    
+                // Dynamically add Google Maps script
+                const script = document.createElement("script");
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&callback=initMap&libraries=places`;
+                script.async = true;
+                script.defer = true;
+                document.head.appendChild(script);
+            })
+            .catch(error => console.error("❌ Error loading API key:", error));
+    
+        // ✅ WebSocket Alert Handling
+        socket.on("showAlert", (data) => {
+            alert(data.message); // Show emergency alert popup
+        });
     </script>
+    
     
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <link rel="stylesheet" href="styles.css"> 
