@@ -39,21 +39,19 @@
             const username = document.getElementById("register-username").value;
             const email = document.getElementById("register-email").value;
             const password = document.getElementById("register-password").value;
-            const role = document.getElementById("register-role").value;
-
+            const role = document.getElementById("register-role").value; // ✅ Ensure role is sent
+        
             const res = await fetch("/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, email, password, role }),
             });
-
+        
             const data = await res.json();
             alert(data.message);
-
-            if (data.success) {
-                window.location.href = "index.html";
-            }
+            if (data.success) window.location.href = "index.html";
         });
+        
     </script>
 </body>
 </html>
