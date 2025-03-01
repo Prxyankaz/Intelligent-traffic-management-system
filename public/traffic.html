@@ -6,39 +6,31 @@
     <title>Traffic Management System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Load Google Maps API dynamically -->
     <script>
         fetch('https://traffic-management-backend.onrender.com/api/maps-key')
-    .then(response => response.json())
-    .then(data => {
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&callback=initMap&libraries=places`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-    })
-    .catch(error => console.error('Error loading API key:', error));
+            .then(response => response.json())
+            .then(data => {
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&callback=initMap&libraries=places`;
+                script.async = true;
+                script.defer = true;
+                document.head.appendChild(script);
+            })
+            .catch(error => console.error('Error loading API key:', error));
 
-function initMap() {
-    console.log("Google Maps API loaded successfully");
+        function initMap() {
+            console.log("Google Maps API loaded successfully");
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 12.9716, lng: 77.5946 }, // Default location (Bangalore)
+                zoom: 12
+            });
 
-    // Create a new map instance
-    const map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 12.9716, lng: 77.5946 }, // Default location (Bangalore)
-        zoom: 12, // Adjust zoom level as needed
-    });
-
-    // Example: Adding a marker (You can update the coordinates)
-    new google.maps.Marker({
-        position: { lat: 12.9716, lng: 77.5946 },
-        map: map,
-        title: "Default Location",
-    });
-
-    // Optional: Add Traffic Layer
-    const trafficLayer = new google.maps.TrafficLayer();
-    trafficLayer.setMap(map);
-}
-
+            // Add Traffic Layer
+            const trafficLayer = new google.maps.TrafficLayer();
+            trafficLayer.setMap(map);
+        }
     </script>
     
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
@@ -190,7 +182,6 @@ nav ul li a:hover, #logout-btn:hover {
 }
 
 /* Responsive Map */
-
 #map {
     width: 100%;
     max-width: 900px;
@@ -200,6 +191,7 @@ nav ul li a:hover, #logout-btn:hover {
     position: relative;
     z-index: 1;
 }
+
 .live-traffic {
     text-align: center;
     padding: 50px 20px;
@@ -219,10 +211,6 @@ nav ul li a:hover, #logout-btn:hover {
 
 /* Adjustments for Mobile Screens */
 @media screen and (max-width: 600px) {
-    nav ul {
-        width: 180px;
-    }
-
     .hero {
         height: 80vh;
     }
@@ -236,28 +224,6 @@ nav ul li a:hover, #logout-btn:hover {
         font-size: 16px;
     }
 }
-.button {
-    display: inline-block;
-    padding: 12px 40px;
-    font-size: 18px;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: white;
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid white;
-    border-radius: 50px;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease-in-out;
-    cursor: pointer;
-    letter-spacing: 2px;
-}
-
-.button:hover {
-    background: white;
-    color: black;
-    transform: scale(1.1);
-}
-
 </style>
 </head>
 <body>
@@ -275,46 +241,30 @@ nav ul li a:hover, #logout-btn:hover {
     </nav>
     
     <header class="hero">
-        <div class="hero-text">
-            <h1>Smart Traffic Management</h1>
-            <p>Real-time traffic monitoring, emergency vehicle alerts, and traffic analysis powered by advanced AI.</p>
-            <button class="button">Explore Now</button>
-        </div>
+        <h1>Smart Traffic Management</h1>
+        <p>Real-time traffic monitoring, emergency vehicle alerts, and traffic analysis powered by AI.</p>
     </header>
     
     <main>
-<section class="live-traffic">
+        <section class="live-traffic">
             <h2>Live Traffic Map</h2>
             <div id="map"></div>
-<h1>Emergency Vehicle Alert</h1>
-        <button id="alert-btn">🚨 Send Emergency Alert</button>
+            <h1>Emergency Vehicle Alert</h1>
+            <button id="alert-btn">🚨 Send Emergency Alert</button>
         </section>
     </main>
-<script>
-        // Redirect if not logged in
-        if (!localStorage.getItem("token")) {
-            window.location.href = "index.html";
-        }
 
-        // Logout
-        document.getElementById("logout-btn").addEventListener("click", () => {
-            localStorage.removeItem("token");
-            window.location.href = "index.html";
-        });
-
-        // WebSocket connection
-        const socket = io();
+    <script>
+        const socket = io("http://localhost:3000"); // Change URL if deployed
 
         document.getElementById("alert-btn").addEventListener("click", () => {
-            socket.emit("emergencyAlert", { message: "Emergency Alert Sent!" });
+            socket.emit("emergencyAlert", { message: "🚨 Emergency Alert: Clear the road for an emergency vehicle!" });
+            alert("Emergency Alert Sent!");
         });
-        socket.emit("joinPage", "dashboard");  // Change page name based on user type
-
 
         socket.on("showAlert", (data) => {
             alert(data.message);
         });
-
     </script>
 </body>
 </html>
