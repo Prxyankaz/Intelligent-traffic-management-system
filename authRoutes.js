@@ -44,25 +44,27 @@ router.post("/login", async (req, res) => {
         const { email, password } = req.body;
 
         // Check if user exists
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).select("+password");
         if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
         // Validate password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-        // Generate JWT token with role
+        // Generate JWT token
         const token = jwt.sign(
-            { userId: user._id, role: user.role }, // ✅ Include role in the token
+            { userId: user._id, role: user.role }, // Include role in token
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 
-        res.json({ message: "Login successful", token, role: user.role }); // ✅ Send role to frontend
+        res.json({ message: "Login successful", token });
     } catch (error) {
+        console.error("❌ Login Error:", error);
         res.status(500).json({ message: "Server error" });
     }
 });
+
 
 // ✅ Fetch Current User Role (For Frontend)
 router.get("/user", async (req, res) => {
