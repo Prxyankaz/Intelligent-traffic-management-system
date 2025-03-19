@@ -92,6 +92,10 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: "Internal Server Error" });
 });
 
+const locationRoutes = require("./routes/locationRoutes");
+app.use("/api", locationRoutes);
+
+
 // ✅ Start Server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
