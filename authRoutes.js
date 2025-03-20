@@ -6,6 +6,7 @@ const router = express.Router();
 require("dotenv").config(); // Load environment variables
 
 // ✅ User Registration
+// ✅ User Registration (Without Hashing)
 router.post("/register", async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
@@ -15,21 +16,14 @@ router.post("/register", async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        // Check if user already exists
         let user = await User.findOne({ email });
         if (user) {
             console.log("❌ User already exists:", email);
             return res.status(400).json({ message: "User already exists" });
         }
 
-        // ✅ Ensure password is hashed
-        console.log("🔍 Before Hashing:", password);
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        console.log("🔍 After Hashing:", hashedPassword);
-
-        // Save user with hashed password
-        user = new User({ username, email, password: hashedPassword, role });
+        // ❌ No hashing, store password directly
+        user = new User({ username, email, password, role });
         await user.save();
         console.log("✅ User registered successfully:", user);
 
@@ -41,36 +35,32 @@ router.post("/register", async (req, res) => {
 });
 
 // ✅ User Login
+// ✅ User Login (Without Hashing)
 router.post("/login", async (req, res) => {
     try {
         const { email, password, role } = req.body;
         console.log(`🔹 Login Attempt: ${email} (Role: ${role})`);
 
-        // Check if user exists
-        const user = await User.findOne({email}).select("+password");
+        const user = await User.findOne({ email }); // No `select("+password")` needed
         if (!user) {
             console.log("❌ LOGIN FAILED: User not found");
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        // Debug: Print stored and entered passwords
         console.log(`🔍 Stored Password: ${user.password}`);
         console.log(`🔍 Entered Password: ${password}`);
 
-        // Validate password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
+        // ❌ No bcrypt, directly compare passwords
+        if (password !== user.password) {
             console.log(`❌ LOGIN FAILED: Incorrect password for email ${email}`);
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        // Validate role
         if (user.role !== role) {
             console.log(`❌ LOGIN FAILED: Role mismatch for email ${email}`);
             return res.status(403).json({ message: `Access denied for role: ${role}` });
         }
 
-        // Generate JWT token
         const token = jwt.sign(
             { userId: user._id, role: user.role },
             process.env.JWT_SECRET,
@@ -84,6 +74,7 @@ router.post("/login", async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+
 
 
 // ✅ Fetch Current User Role (For Frontend)
