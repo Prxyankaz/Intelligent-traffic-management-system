@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("./models/User");
 const router = express.Router();
-require("dotenv").config(); // Ensure environment variables are loaded
+require("dotenv").config(); // Load environment variables
 
 // ✅ User Registration
 router.post("/register", async (req, res) => {
@@ -18,7 +18,7 @@ router.post("/register", async (req, res) => {
         // Check if user already exists
         let user = await User.findOne({ email });
         if (user) {
-            console.log("❌ User already exists:", email);
+            console.log(`❌ Registration Failed: User with email ${email} already exists.`);
             return res.status(400).json({ message: "User already exists" });
         }
 
@@ -29,7 +29,7 @@ router.post("/register", async (req, res) => {
         // Create new user with role
         user = new User({ username, email, password: hashedPassword, role });
         await user.save();
-        console.log("✅ User registered successfully:", user);
+        console.log(`✅ User registered successfully: ${email}`);
 
         res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
@@ -42,17 +42,25 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
         const { email, password, role } = req.body;
+        console.log(`🔹 Login Attempt: ${email} (Role: ${role})`);
 
         // Check if user exists
         const user = await User.findOne({ email }).select("+password");
-        if (!user) return res.status(400).json({ message: "Invalid credentials" });
+        if (!user) {
+            console.log(`❌ LOGIN FAILED: User with email ${email} not found.`);
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
 
         // Validate password
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+        if (!isMatch) {
+            console.log(`❌ LOGIN FAILED: Incorrect password for email ${email}`);
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
 
         // Validate role (prevent users from switching roles manually)
         if (user.role !== role) {
+            console.log(`❌ LOGIN FAILED: Role mismatch for ${email}. Expected: ${user.role}, Received: ${role}`);
             return res.status(403).json({ message: `Access denied for role: ${role}` });
         }
 
@@ -63,14 +71,13 @@ router.post("/login", async (req, res) => {
             { expiresIn: "1h" }
         );
 
+        console.log(`✅ LOGIN SUCCESS: ${email} (Role: ${role})`);
         res.json({ message: "Login successful", token });
     } catch (error) {
         console.error("❌ Login Error:", error);
         res.status(500).json({ message: "Server error" });
     }
 });
-
-
 
 // ✅ Fetch Current User Role (For Frontend)
 router.get("/user", async (req, res) => {
