@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css"> 
     <style>
+        /* General Page Styling */
         body {
             margin: 0;
             padding: 0;
@@ -195,67 +196,43 @@
                 font-size: 16px;
             }
         }
-        
     </style>
     <script>
-        let map;
-        let userMarker;
-
-        function initMap(lat = 12.9716, lon = 77.5946) {
-            const userLocation = { lat: lat, lng: lon };
-            
-            map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 14,
-                center: userLocation,
-            });
-
-            const trafficLayer = new google.maps.TrafficLayer();
-            trafficLayer.setMap(map);
-
-            userMarker = new google.maps.Marker({
-                position: userLocation,
-                map: map,
-                title: "You are here",
-                icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-            });
-        }
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const latitude = position.coords.latitude;
-                const longitude = position.coords.longitude;
-                const userId = localStorage.getItem("userId");
-
-                await fetch("https://traffic-management-backend.onrender.com/api/update-location", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userId, latitude, longitude }),
-                });
-
-                initMap(latitude, longitude);
-            }, () => {
-                console.log("Location access denied. Using default location.");
-                initMap();
-            });
-        } else {
-            console.log("Geolocation is not supported by this browser.");
-        }
-
-        fetch("https://traffic-management-backend.onrender.com/api/maps-key")
+        fetch('https://traffic-management-backend.onrender.com/api/maps-key')
         .then(response => response.json())
         .then(data => {
-            const script = document.createElement("script");
+            const script = document.createElement('script');
             script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&callback=initMap&libraries=places`;
             script.async = true;
             script.defer = true;
             document.head.appendChild(script);
         })
-        .catch(error => console.error("Error loading API key:", error));
+        .catch(error => console.error('Error loading API key:', error));
+
+        function initMap() {
+            console.log("Google Maps API loaded successfully");
+
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 12.9716, lng: 77.5946 },
+                zoom: 12,
+            });
+
+            new google.maps.Marker({
+                position: { lat: 12.9716, lng: 77.5946 },
+                map: map,
+                title: "Default Location",
+            });
+
+            const trafficLayer = new google.maps.TrafficLayer();
+            trafficLayer.setMap(map);
+        }
     </script>
 </head>
 <body>
     <nav>
         <div class="logo">TrafficX</div>
+        <input type="checkbox" id="menu-toggle">
+        <label for="menu-toggle" class="menu-icon">☰</label>
         <ul>
             <li><a href="#">Home</a></li>
             <li><a href="#traffic">Traffic Analysis</a></li>
@@ -279,21 +256,33 @@
             <div id="map"></div>
         </section>
     </main>
+
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script>
+        // Redirect if not logged in
         if (!localStorage.getItem("token")) {
             window.location.href = "index.html";
         }
 
+        // Logout functionality
         document.getElementById("logout-btn").addEventListener("click", () => {
             localStorage.removeItem("token");
             window.location.href = "index.html";
         });
 
-        const socket = io("https://traffic-management-backend.onrender.com");
+        // WebSocket Connection
+        const socket = io("https://traffic-management-backend.onrender.com"); // Change URL if deployed
+
         socket.on("showAlert", (data) => {
             alert(data.message);
         });
+
+        document.getElementById("alert-btn")?.addEventListener("click", () => {
+            socket.emit("emergencyAlert", { message: "Emergency Alert Sent!" });
+        });
+
+        socket.emit("joinPage", "dashboard");
     </script>
 </body>
 </html>
+
