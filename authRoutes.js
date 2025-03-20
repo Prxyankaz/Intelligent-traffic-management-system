@@ -47,7 +47,7 @@ router.post("/login", async (req, res) => {
         console.log(`🔹 Login Attempt: ${email} (Role: ${role})`);
 
         // Check if user exists
-        const user = await User.findOne({ email }).select("+password");
+        const user = await User.findOne({email}).select("+password");
         if (!user) {
             console.log("❌ LOGIN FAILED: User not found");
             return res.status(400).json({ message: "Invalid credentials" });
