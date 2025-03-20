@@ -41,7 +41,8 @@ router.post("/login", async (req, res) => {
         const { email, password, role } = req.body;
         console.log(`🔹 Login Attempt: ${email} (Role: ${role})`);
 
-        const user = await User.findOne({ email }); // No `select("+password")` needed
+        // ✅ Ensure password is fetched
+        const user = await User.findOne({ email }).select("+password");
         if (!user) {
             console.log("❌ LOGIN FAILED: User not found");
             return res.status(400).json({ message: "Invalid credentials" });
@@ -50,7 +51,6 @@ router.post("/login", async (req, res) => {
         console.log(`🔍 Stored Password: ${user.password}`);
         console.log(`🔍 Entered Password: ${password}`);
 
-        // ❌ No bcrypt, directly compare passwords
         if (password !== user.password) {
             console.log(`❌ LOGIN FAILED: Incorrect password for email ${email}`);
             return res.status(400).json({ message: "Invalid credentials" });
@@ -74,7 +74,6 @@ router.post("/login", async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
-
 
 
 // ✅ Fetch Current User Role (For Frontend)
