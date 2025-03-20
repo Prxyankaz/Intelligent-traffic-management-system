@@ -39,6 +39,7 @@ router.post("/register", async (req, res) => {
 });
 
 // ✅ User Login
+// ✅ User Login
 router.post("/login", async (req, res) => {
     try {
         const { email, password, role } = req.body;
@@ -47,9 +48,13 @@ router.post("/login", async (req, res) => {
         // Check if user exists
         const user = await User.findOne({ email }).select("+password");
         if (!user) {
-            console.log(`❌ LOGIN FAILED: User with email ${email} not found.`);
+            console.log("❌ LOGIN FAILED: User not found");
             return res.status(400).json({ message: "Invalid credentials" });
         }
+
+        // Debug: Print stored and entered passwords
+        console.log(`🔍 Stored Password: ${user.password}`);
+        console.log(`🔍 Entered Password: ${password}`);
 
         // Validate password
         const isMatch = await bcrypt.compare(password, user.password);
@@ -58,26 +63,27 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        // Validate role (prevent users from switching roles manually)
+        // Validate role
         if (user.role !== role) {
-            console.log(`❌ LOGIN FAILED: Role mismatch for ${email}. Expected: ${user.role}, Received: ${role}`);
+            console.log(`❌ LOGIN FAILED: Role mismatch for email ${email}`);
             return res.status(403).json({ message: `Access denied for role: ${role}` });
         }
 
-        // Generate JWT token including role
+        // Generate JWT token
         const token = jwt.sign(
-            { userId: user._id, role: user.role }, 
-            process.env.JWT_SECRET, 
+            { userId: user._id, role: user.role },
+            process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 
-        console.log(`✅ LOGIN SUCCESS: ${email} (Role: ${role})`);
+        console.log(`✅ LOGIN SUCCESS: ${email} (${role})`);
         res.json({ message: "Login successful", token });
     } catch (error) {
         console.error("❌ Login Error:", error);
         res.status(500).json({ message: "Server error" });
     }
 });
+
 
 // ✅ Fetch Current User Role (For Frontend)
 router.get("/user", async (req, res) => {
