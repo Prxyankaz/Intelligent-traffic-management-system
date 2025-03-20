@@ -203,25 +203,12 @@
         .then(data => {
             const script = document.createElement('script');
             script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&callback=initMap&libraries=places`;
-            script.async = true;
-            script.defer = true;
+            script.async = true;  // ✅ This ensures non-blocking load
+            script.defer = true;  // ✅ This ensures execution order
             document.head.appendChild(script);
-    
-            // Get user location AFTER API loads
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    console.log(`User Location: ${latitude}, ${longitude}`);
-                    window.initMap = () => initMap(latitude, longitude); // Set global function with coordinates
-                },
-                (error) => {
-                    console.error("Geolocation error:", error);
-                    alert("Location access denied or unavailable. Please enable location services.");
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
         })
         .catch(error => console.error('Error loading API key:', error));
+        
         function initMap(lat, lng) {
             const map = new google.maps.Map(document.getElementById("map"), {
                 center: { lat, lng },
