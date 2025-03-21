@@ -29,21 +29,7 @@ function initMap() {
 }
 
 
-// Firebase Config
-const firebaseConfig = {
-    apiKey: "AIzaSyDZhTQHy-pI2-8FkewsgkNYPkXKIU5jY00",
-    authDomain: "trafficmanagementsystem-dfb3e.firebaseapp.com",
-    projectId: "trafficmanagementsystem-dfb3e",
-    storageBucket: "trafficmanagementsystem-dfb3e.firebasestorage.app",
-    messagingSenderId: "1095767209218",
-    appId: "1:1095767209218:web:7dbbec59d2318537f2be1b"
-  };
-  
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
 
 // Login
 document.getElementById("loginBtn").addEventListener("click", () => {
