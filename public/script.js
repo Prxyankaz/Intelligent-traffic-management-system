@@ -1,5 +1,10 @@
 const socket = io('https://traffic-management-backend.onrender.com');
 
+// Function to get user role from localStorage
+function getUserRole() {
+    return localStorage.getItem("role"); // Ensure this is stored during login
+}
+
 // Function to send user location to the backend
 function sendUserLocation() {
     if (navigator.geolocation) {
@@ -18,39 +23,59 @@ function sendUserLocation() {
 // Send location when user logs in
 sendUserLocation();
 
-// Handle emergency alert button
-document.getElementById("alert-btn")?.addEventListener("click", () => {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-            const { latitude, longitude } = position.coords;
-            socket.emit("emergencyAlert", { location: { lat: latitude, lng: longitude } });
-            alert("🚨 Emergency Alert Sent!");
-        });
-    } else {
-        alert("❌ Location access required for emergency alerts.");
-    }
-});
+// Handle emergency alert button (Only for emergency vehicle drivers)
+const alertBtn = document.getElementById("alert-btn");
+if (alertBtn) {
+    alertBtn.style.display = getUserRole() === "driver" ? "block" : "none"; // Hide for normal users
+    alertBtn.addEventListener("click", () => {
+        if (getUserRole() !== "driver") {
+            alert("❌ Only emergency vehicle drivers can send alerts.");
+            return;
+        }
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                const { latitude, longitude } = position.coords;
+                socket.emit("emergencyAlert", { location: { lat: latitude, lng: longitude } });
+                alert("🚨 Emergency Alert Sent!");
+            });
+        } else {
+            alert("❌ Location access required for emergency alerts.");
+        }
+    });
+}
 
 // Receive emergency alerts
 socket.on("showAlert", (data) => {
-    alert(data.message);
+    alert(`🚨 Emergency Alert: Emergency vehicle nearby at (${data.location.lat}, ${data.location.lng})`);
 });
 
 // Handle real-time incident reporting
 document.getElementById("report-incident-btn")?.addEventListener("click", async () => {
     const type = document.getElementById("incident-type").value;
     const description = document.getElementById("incident-description").value;
-    
+
+    if (!type || !description) {
+        alert("❌ Please provide both an incident type and description.");
+        return;
+    }
+
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(async (position) => {
             const { latitude, longitude } = position.coords;
-            const response = await fetch("/reportIncident", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ type, description, location: { lat: latitude, lng: longitude } })
-            });
-            const data = await response.json();
-            alert(data.message);
+            try {
+                const response = await fetch("/api/reportIncident", {  // ✅ Fixed API route
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ type, description, location: { lat: latitude, lng: longitude } })
+                });
+
+                const data = await response.json();
+                alert(data.message);
+            } catch (error) {
+                console.error("❌ Error reporting incident:", error);
+                alert("❌ Failed to report incident. Please try again.");
+            }
         });
     } else {
         alert("❌ Location access required to report incidents.");
@@ -60,7 +85,7 @@ document.getElementById("report-incident-btn")?.addEventListener("click", async 
 // Receive new incidents in real-time
 socket.on("newIncident", (incident) => {
     console.log("🚧 New Incident:", incident);
-    alert(`🚧 New Incident Reported: ${incident.type} - ${incident.description}`);
+    alert(`🚧 New Incident Reported: ${incident.type} - ${incident.description} at (${incident.location.lat}, ${incident.location.lng})`);
 });
 
 // Google Maps Initialization
@@ -80,7 +105,7 @@ function initMap() {
             center: { lat: latitude, lng: longitude },
             zoom: 14,
         });
-        
+
         new google.maps.Marker({
             position: { lat: latitude, lng: longitude },
             map: map,
@@ -95,41 +120,57 @@ function initMap() {
 }
 
 // Login
-document.getElementById("loginBtn")?.addEventListener("click", () => {
+document.getElementById("loginBtn")?.addEventListener("click", async () => {
     const email = document.getElementById("login-email").value;
     const password = document.getElementById("login-password").value;
 
-    fetch("/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-    })
-    .then(res => res.json())
-    .then(data => {
+    try {
+        const res = await fetch("/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
         if (data.token) {
             localStorage.setItem("token", data.token);
-            window.location.href = "dashboard.html";
+            localStorage.setItem("role", data.role); // ✅ Store user role
+
+            if (data.role === "driver") {
+                window.location.href = "traffic.html"; // Redirect drivers to emergency page
+            } else {
+                window.location.href = "dashboard.html"; // Redirect normal users
+            }
         } else {
             alert("Invalid credentials");
         }
-    });
+    } catch (error) {
+        console.error("❌ Error logging in:", error);
+        alert("❌ Login failed. Please try again.");
+    }
 });
 
 // Register
-document.getElementById("registerBtn")?.addEventListener("click", () => {
+document.getElementById("registerBtn")?.addEventListener("click", async () => {
     const username = document.getElementById("register-username").value;
     const email = document.getElementById("register-email").value;
     const password = document.getElementById("register-password").value;
     const role = document.getElementById("register-role").value;
 
-    fetch("/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password, role })
-    })
-    .then(res => res.json())
-    .then(data => {
+    try {
+        const res = await fetch("/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, email, password, role })
+        });
+
+        const data = await res.json();
         alert(data.message);
-        if (data.success) window.location.href = "index.html";
-    });
+        if (data.success) {
+            window.location.href = "index.html";
+        }
+    } catch (error) {
+        console.error("❌ Error registering:", error);
+        alert("❌ Registration failed. Please try again.");
+    }
 });
