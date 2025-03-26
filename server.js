@@ -49,7 +49,9 @@ io.on("connection", (socket) => {
             }
         });
     });
-
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+      });
     socket.on("disconnect", () => {
         console.log("❌ A user disconnected:", socket.id);
         delete users[socket.id];
