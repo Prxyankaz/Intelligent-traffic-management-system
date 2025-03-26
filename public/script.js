@@ -1,15 +1,69 @@
- const socket = io('https://traffic-management-backend.onrender.com');
- // Connect to backend
+const socket = io('https://traffic-management-backend.onrender.com');
 
-// Emergency alert button
-document.getElementById("alert-btn").addEventListener("click", () => {
-    socket.emit('emergencyAlert', { vehicle: "Ambulance", location: "XYZ Street" });
+// Function to send user location to the backend
+function sendUserLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            const { latitude, longitude } = position.coords;
+            socket.emit("updateLocation", { lat: latitude, lng: longitude });
+            console.log("📍 Location sent to server:", latitude, longitude);
+        }, (error) => {
+            console.error("❌ Error getting location:", error);
+        });
+    } else {
+        console.error("❌ Geolocation is not supported by this browser.");
+    }
+}
+
+// Send location when user logs in
+sendUserLocation();
+
+// Handle emergency alert button
+document.getElementById("alert-btn")?.addEventListener("click", () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            const { latitude, longitude } = position.coords;
+            socket.emit("emergencyAlert", { location: { lat: latitude, lng: longitude } });
+            alert("🚨 Emergency Alert Sent!");
+        });
+    } else {
+        alert("❌ Location access required for emergency alerts.");
+    }
 });
 
-// Receive alert and show popup
-socket.on('showAlert', (data) => {
-    alert(data.message); // Shows alert to all logged-in users
+// Receive emergency alerts
+socket.on("showAlert", (data) => {
+    alert(data.message);
 });
+
+// Handle real-time incident reporting
+document.getElementById("report-incident-btn")?.addEventListener("click", async () => {
+    const type = document.getElementById("incident-type").value;
+    const description = document.getElementById("incident-description").value;
+    
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const { latitude, longitude } = position.coords;
+            const response = await fetch("/reportIncident", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ type, description, location: { lat: latitude, lng: longitude } })
+            });
+            const data = await response.json();
+            alert(data.message);
+        });
+    } else {
+        alert("❌ Location access required to report incidents.");
+    }
+});
+
+// Receive new incidents in real-time
+socket.on("newIncident", (incident) => {
+    console.log("🚧 New Incident:", incident);
+    alert(`🚧 New Incident Reported: ${incident.type} - ${incident.description}`);
+});
+
+// Google Maps Initialization
 window.onload = function () {
     if (typeof google !== 'undefined' && google.maps) {
         console.log("Google Maps API Loaded Successfully");
@@ -20,60 +74,62 @@ window.onload = function () {
 };
 
 function initMap() {
-    const map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 12.9716, lng: 77.5946 }, // Default location (Bangalore)
-        zoom: 12,
+    navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        const map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: latitude, lng: longitude },
+            zoom: 14,
+        });
+        
+        new google.maps.Marker({
+            position: { lat: latitude, lng: longitude },
+            map: map,
+            title: "Your Location",
+            icon: {
+                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                scaledSize: new google.maps.Size(40, 40),
+            },
+        });
     });
-
     console.log("Map initialized successfully.");
 }
 
-
-
-
 // Login
-document.getElementById("loginBtn").addEventListener("click", () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+document.getElementById("loginBtn")?.addEventListener("click", () => {
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
 
-    auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            alert("Login successful!");
-            window.location.href = "index.html"; // Redirect to main page
-        })
-        .catch((error) => {
-            alert("Error: " + error.message);
-        });
+    fetch("/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.token) {
+            localStorage.setItem("token", data.token);
+            window.location.href = "dashboard.html";
+        } else {
+            alert("Invalid credentials");
+        }
+    });
 });
 
 // Register
-document.getElementById("registerBtn").addEventListener("click", () => {
+document.getElementById("registerBtn")?.addEventListener("click", () => {
+    const username = document.getElementById("register-username").value;
     const email = document.getElementById("register-email").value;
     const password = document.getElementById("register-password").value;
-    const userType = document.getElementById("user-type").value;
+    const role = document.getElementById("register-role").value;
 
-    auth.createUserWithEmailAndPassword(email, password)
-        .then(async (userCredential) => {
-            await db.collection("users").doc(userCredential.user.uid).set({
-                email: email,
-                userType: userType
-            });
-            alert("Registration successful! Please log in.");
-            document.getElementById("register-container").style.display = "none";
-            document.getElementById("login-container").style.display = "block";
-        })
-        .catch((error) => {
-            alert("Error: " + error.message);
-        });
-});
-
-// Toggle Login/Register Forms
-document.getElementById("showRegister").addEventListener("click", () => {
-    document.getElementById("login-container").style.display = "none";
-    document.getElementById("register-container").style.display = "block";
-});
-
-document.getElementById("showLogin").addEventListener("click", () => {
-    document.getElementById("register-container").style.display = "none";
-    document.getElementById("login-container").style.display = "block";
+    fetch("/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password, role })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.success) window.location.href = "index.html";
+    });
 });

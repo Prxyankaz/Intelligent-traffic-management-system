@@ -1,110 +1,56 @@
+* {  
+    margin: 0;  
+    padding: 0;  
+    box-sizing: border-box;  
+    font-family: 'Poppins', sans-serif;  
+}  
 
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+body {  
+    display: flex;  
+    justify-content: center;  
+    align-items: center;  
+    height: 100vh;  
+    background: url('i2.jpg') no-repeat center center/cover;  
+}  
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Quicksand', sans-serif;
-}
+.container {  
+    width: 400px;  
+    background: rgba(0, 0, 0, 0.6);  
+    color: white;  
+    padding: 30px;  
+    border-radius: 10px;  
+    text-align: center;  
+}  
 
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: #000;
-    overflow: hidden;
-}
+.container h2 {  
+    margin-bottom: 15px;  
+}  
 
-body::after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: repeating-linear-gradient(
-        to right, 
-        rgba(128, 0, 128, 0.3) 0px, rgba(128, 0, 128, 0.3) 1px, transparent 1px, transparent 40px
-    ),
-    repeating-linear-gradient(
-        to bottom, 
-        rgba(128, 0, 128, 0.3) 0px, rgba(128, 0, 128, 0.3) 1px, transparent 1px, transparent 40px
-    );
-    z-index: -1;
-    animation: gridMove 3s linear infinite;
-}
+.container input, .container select {  
+    width: 100%;  
+    padding: 10px;  
+    margin-bottom: 10px;  
+    border: none;  
+    border-radius: 5px;  
+}  
 
-@keyframes gridMove {
-    0% {
-        background-position: 0 0;
-    }
-    100% {
-        background-position: 40px 40px;
-    }
-}
+.container button {  
+    width: 100%;  
+    padding: 10px;  
+    background: #ff6200;  
+    border: none;  
+    color: white;  
+    font-size: 16px;  
+    font-weight: bold;  
+    cursor: pointer;  
+    margin-top: 10px;  
+}  
 
-.container {
-    background: #222;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(128, 0, 128, 0.3);
-    text-align: center;
-    width: 350px;
-}
-
-.container h2 {
-    color: #800080;
-    font-size: 1.8em;
-    margin-bottom: 20px;
-    font-weight: bold;
-}
-
-.input-box {
-    margin: 10px 0;
-    position: relative;
-}
-
-.input-box input {
-    width: 100%;
-    padding: 12px;
-    background: #333;
-    border: none;
-    border-radius: 5px;
-    color: #fff;
-    font-size: 1em;
-    outline: none;
-}
-
-.input-box input::placeholder {
-    color: #aaa;
-}
-
-.btn {
-    width: 100%;
-    padding: 12px;
-    background: #800080;
-    color: #fff;
-    font-weight: bold;
-    font-size: 1.2em;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.btn:hover {
-    background: #993399;
-}
-
-.switch-page {
-    margin-top: 15px;
-    font-size: 0.9em;
-    color: #aaa;
-}
-
-.switch-page a {
-    color: #800080;
-    text-decoration: none;
-    font-weight: bold;
-}
-
+.container a {  
+    color: white;  
+    font-size: 14px;  
+    display: block;  
+    text-align: center;  
+    margin-top: 10px;  
+    text-decoration: none;  
+}  
