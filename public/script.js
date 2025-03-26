@@ -4,6 +4,15 @@ const socket = io('https://traffic-management-backend.onrender.com');
 function getUserRole() {
     return localStorage.getItem("role"); // Ensure this is stored during login
 }
+// Logout
+document.getElementById("logoutBtn")?.addEventListener("click", () => {
+    // Clear user authentication data
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+
+    // Redirect to login page
+    window.location.href = "index.html";
+});
 
 // Function to send user location to the backend
 function sendUserLocation() {
