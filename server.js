@@ -28,7 +28,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // ✅ Authentication Routes
 app.use("/auth", authRoutes);
-
+app.use(express.static(path.join(__dirname, 'public')));
 // ✅ Store Connected Users with Location
 let users = {};
 
