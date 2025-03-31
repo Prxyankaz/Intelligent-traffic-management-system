@@ -4,13 +4,11 @@ const socket = io('https://traffic-management-backend.onrender.com');
 function getUserRole() {
     return localStorage.getItem("role"); // Ensure this is stored during login
 }
+
 // Logout
 document.getElementById("logoutBtn")?.addEventListener("click", () => {
-    // Clear user authentication data
     localStorage.removeItem("token");
     localStorage.removeItem("role");
-
-    // Redirect to login page
     window.location.href = "index.html";
 });
 
@@ -36,16 +34,21 @@ sendUserLocation();
 const alertBtn = document.getElementById("alert-btn");
 if (alertBtn) {
     alertBtn.style.display = getUserRole() === "driver" ? "block" : "none"; // Hide for normal users
+
     alertBtn.addEventListener("click", () => {
         if (getUserRole() !== "driver") {
             alert("❌ Only emergency vehicle drivers can send alerts.");
             return;
         }
-        
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((position) => {
                 const { latitude, longitude } = position.coords;
-                socket.emit("emergencyAlert", { location: { lat: latitude, lng: longitude } });
+                if (latitude === undefined || longitude === undefined) {
+                    alert("❌ Location coordinates unavailable.");
+                    return;
+                }
+                socket.emit("emergencyAlert", { lat: latitude, lng: longitude }); // ✅ FIXED
                 alert("🚨 Emergency Alert Sent!");
             });
         } else {
@@ -56,7 +59,7 @@ if (alertBtn) {
 
 // Receive emergency alerts
 socket.on("showAlert", (data) => {
-    alert(`🚨 Emergency Alert: Emergency vehicle nearby at (${data.location.lat}, ${data.location.lng})`);
+    alert(`🚨 Emergency Alert: Emergency vehicle nearby at (${data.lat}, ${data.lng})`);
 });
 
 // Handle real-time incident reporting
@@ -73,7 +76,7 @@ document.getElementById("report-incident-btn")?.addEventListener("click", async 
         navigator.geolocation.getCurrentPosition(async (position) => {
             const { latitude, longitude } = position.coords;
             try {
-                const response = await fetch("/api/reportIncident", {  // ✅ Fixed API route
+                const response = await fetch("/api/reportIncident", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ type, description, location: { lat: latitude, lng: longitude } })
@@ -93,7 +96,6 @@ document.getElementById("report-incident-btn")?.addEventListener("click", async 
 
 // Receive new incidents in real-time
 socket.on("newIncident", (incident) => {
-    console.log("🚧 New Incident:", incident);
     alert(`🚧 New Incident Reported: ${incident.type} - ${incident.description} at (${incident.location.lat}, ${incident.location.lng})`);
 });
 
@@ -103,7 +105,7 @@ window.onload = function () {
         console.log("Google Maps API Loaded Successfully");
         initMap();
     } else {
-        console.error("Google Maps API failed to load. Check your API key.");
+        console.error("❌ Google Maps API failed to load. Check your API key.");
     }
 };
 
@@ -125,7 +127,6 @@ function initMap() {
             },
         });
     });
-    console.log("Map initialized successfully.");
 }
 
 // Login
@@ -143,12 +144,12 @@ document.getElementById("loginBtn")?.addEventListener("click", async () => {
         const data = await res.json();
         if (data.token) {
             localStorage.setItem("token", data.token);
-            localStorage.setItem("role", data.role); // ✅ Store user role
+            localStorage.setItem("role", data.role);
 
             if (data.role === "driver") {
-                window.location.href = "traffic.html"; // Redirect drivers to emergency page
+                window.location.href = "traffic.html";
             } else {
-                window.location.href = "dashboard.html"; // Redirect normal users
+                window.location.href = "dashboard.html";
             }
         } else {
             alert("Invalid credentials");
