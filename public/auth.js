@@ -8,10 +8,7 @@ const firebaseConfig = {
     appId: process.env.FIREBASE_APP_ID
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+
 
 // 📌 SIGNUP FUNCTION
 async function signup() {
