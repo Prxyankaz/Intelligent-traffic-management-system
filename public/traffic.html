@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Traffic Management System</title>
-    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="styles.css">
     <style>
-        /* General Page Styling */
         body {
             margin: 0;
             padding: 0;
@@ -16,8 +15,7 @@
             color: white;
             overflow-x: hidden;
         }
-        
-        /* Navigation Bar */
+
         nav {
             position: fixed;
             top: 0;
@@ -30,7 +28,7 @@
             backdrop-filter: blur(10px);
             z-index: 1000;
         }
-        
+
         .logo {
             font-family: 'Orbitron', sans-serif;
             font-size: 22px;
@@ -38,19 +36,18 @@
             letter-spacing: 2px;
             color: #ffcc00;
         }
-        
-        /* Menu for larger screens */
+
         nav ul {
             list-style: none;
             display: flex;
             gap: 20px;
             align-items: center;
         }
-        
+
         nav ul li {
             display: inline-block;
         }
-        
+
         nav ul li a, #logout-btn {
             text-decoration: none;
             color: white;
@@ -62,32 +59,31 @@
             cursor: pointer;
             padding: 10px 15px;
         }
-        
+
         nav ul li a:hover, #logout-btn:hover {
             color: #ffcc00;
         }
-        
-        /* Mobile Menu */
+
         .menu-icon {
             display: none;
             font-size: 24px;
             cursor: pointer;
             color: white;
         }
-        
+
         #menu-toggle {
             display: none;
         }
-        
+
         @media screen and (max-width: 768px) {
             nav {
                 padding: 15px 20px;
             }
-            
+
             .menu-icon {
                 display: block;
             }
-        
+
             nav ul {
                 display: none;
                 flex-direction: column;
@@ -100,17 +96,16 @@
                 text-align: center;
                 padding: 10px;
             }
-        
+
             #menu-toggle:checked + ul {
                 display: flex;
             }
-        
+
             nav ul li {
                 margin: 10px 0;
             }
         }
-        
-        /* Hero Section */
+
         .hero {
             display: flex;
             align-items: center;
@@ -120,7 +115,7 @@
             padding: 0 20px;
             flex-direction: column;
         }
-        
+
         .hero h1 {
             font-family: 'Orbitron', sans-serif;
             font-size: clamp(2rem, 5vw, 3.5rem);
@@ -130,11 +125,32 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
+
         .hero p {
             font-size: clamp(1rem, 2vw, 1.5rem);
         }
-    </style>        
+
+        .alert-section {
+            margin: 20px;
+            text-align: center;
+        }
+
+        #alert-btn {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #map {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <nav>
@@ -149,19 +165,18 @@
             <li><button id="logout-btn">Logout</button></li>
         </ul>
     </nav>
-    
+
     <header class="hero">
         <h1>Emergency Vehicle Dashboard</h1>
         <p>Send emergency alerts to notify nearby users.</p>
     </header>
-    
+
     <main>
         <section class="live-traffic">
             <h2>Live Traffic Map</h2>
             <div id="map"></div>
         </section>
 
-        <!-- 🚨 Emergency Alert Button (ONLY for drivers) -->
         <section class="alert-section">
             <h2>Emergency Alerts</h2>
             <button id="alert-btn">🚨 Send Emergency Alert</button>
@@ -170,31 +185,24 @@
 
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script>
-        const socket = io("https://traffic-management-backend.onrender.com"); 
+        const socket = io("https://traffic-management-backend.onrender.com");
 
-        // Get and send user location
         function sendUserLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
                     const { latitude, longitude } = position.coords;
                     socket.emit("updateLocation", { lat: latitude, lng: longitude });
-                    console.log("📍 Location sent to server:", latitude, longitude);
-                }, (error) => {
-                    console.error("❌ Error getting location:", error);
                 });
-            } else {
-                console.error("❌ Geolocation is not supported by this browser.");
             }
         }
 
         sendUserLocation();
 
-        // Emergency alert button with location (ONLY for drivers)
         document.getElementById("alert-btn").addEventListener("click", () => {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
                     const { latitude, longitude } = position.coords;
-                    socket.emit("emergencyAlert", { location: { lat: latitude, lng: longitude } });
+                    socket.emit("emergencyAlert", { lat: latitude, lng: longitude });
                     alert("🚨 Emergency Alert Sent!");
                 });
             } else {
@@ -202,12 +210,10 @@
             }
         });
 
-        // Receive emergency alerts
         socket.on("showAlert", (data) => {
-            alert(`🚨 Emergency Alert at (${data.location.lat}, ${data.location.lng})`);
+            alert(`🚨 Emergency Alert at (${data.lat}, ${data.lng})`);
         });
 
-        // Initialize Google Map with user location
         function initMap() {
             navigator.geolocation.getCurrentPosition((position) => {
                 const { latitude, longitude } = position.coords;
@@ -228,5 +234,6 @@
             });
         }
     </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async></script>
 </body>
 </html>
