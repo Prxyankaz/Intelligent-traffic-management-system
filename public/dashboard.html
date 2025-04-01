@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Traffic Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css"> 
-
     <style>
         /* General Page Styling */
         body {
@@ -196,15 +197,64 @@
             }
         }
     </style>
-
-
-
-
+    <script>
+        fetch('https://traffic-management-backend.onrender.com/api/maps-key')
+        .then(response => response.json())
+        .then(data => {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&callback=initMap&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+    
+            // Get user location AFTER API loads
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    console.log(`User Location: ${latitude}, ${longitude}`);
+                    window.initMap = () => initMap(latitude, longitude); // Set global function with coordinates
+                },
+                (error) => {
+                    console.error("Geolocation error:", error);
+                    alert("Location access denied or unavailable. Please enable location services.");
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        })
+        .catch(error => console.error('Error loading API key:', error));
+    
+        function initMap() {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    console.log(`User Location: ${latitude}, ${longitude}`);
+    
+                    // Initialize map
+                    const map = new google.maps.Map(document.getElementById("map"), {
+                        center: { lat: latitude, lng: longitude },
+                        zoom: 14,
+                    });
+    
+                    // Add User Location Marker
+                    new google.maps.Marker({
+                        position: { lat: latitude, lng: longitude },
+                        map: map,
+                        title: "Your Location",
+                        icon: {
+                            url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", // Custom blue icon
+                            scaledSize: new google.maps.Size(40, 40), // Adjust size
+                        },
+                    });
+    
+                    // Add Traffic Layer
+                    const trafficLayer = new google.maps.TrafficLayer();
+                    trafficLayer.setMap(map);
+                },
+                (error) => console.error("Error getting location:", error)
+            );
+        }
+    </script>
 </head>
-<script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbKNlawat2itlX17sSEwIAFIwW8Ax-9LQ&libraries=places">
-</script>
-
 <body>
     <nav>
         <div class="logo">TrafficX</div>
@@ -222,7 +272,8 @@
     <header class="hero">
         <div class="hero-text">
             <h1>Smart Traffic Management</h1>
-            <p>Real-time traffic monitoring and emergency alerts.</p>
+            <p>Real-time traffic monitoring, emergency vehicle alerts, and traffic analysis powered by advanced AI.</p>
+            <button class="button">Explore Now</button>
         </div>
     </header>
     
@@ -231,91 +282,43 @@
             <h2>Live Traffic Map</h2>
             <div id="map"></div>
         </section>
-
-        <!-- 🚨 Users only receive alerts, no button -->
-        <section class="alert-section">
-            <h2>Emergency Alerts</h2>
-            <p>You'll be notified if an emergency vehicle is nearby.</p>
-        </section>
-
-        <!-- 🛑 Incident Reporting Section -->
-        <section class="incident-report">
-            <h2>Report a Traffic Incident</h2>
-            <select id="incident-type">
-                <option value="Accident">Accident</option>
-                <option value="Roadblock">Roadblock</option>
-                <option value="Heavy Traffic">Heavy Traffic</option>
-            </select>
-            <input type="text" id="incident-description" placeholder="Describe the incident">
-            <button id="report-incident-btn">Report Incident</button>
-        </section>
     </main>
 
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script>
-        const socket = io("https://traffic-management-backend.onrender.com"); 
+        navigator.geolocation.getCurrentPosition(
+  (position) => {
+    const { latitude, longitude } = position.coords;
+    console.log(`User Location: ${latitude}, ${longitude}`);
+    initMap(latitude, longitude);
+  },
+  (error) => console.error("Error getting location:", error)
+);
 
-        function sendUserLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((position) => {
-                    const { latitude, longitude } = position.coords;
-                    socket.emit("updateLocation", { lat: latitude, lng: longitude });
-                    console.log("📍 Location sent to server:", latitude, longitude);
-                }, (error) => {
-                    console.error("❌ Error getting location:", error);
-                });
-            } else {
-                console.error("❌ Geolocation is not supported by this browser.");
-            }
+        // Redirect if not logged in
+        if (!localStorage.getItem("token")) {
+            window.location.href = "index.html";
         }
 
-        sendUserLocation();
+        // Logout functionality
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            localStorage.removeItem("token");
+            window.location.href = "index.html";
+        });
 
-        // Receive emergency alerts (Users only)
+        // WebSocket Connection
+        const socket = io("https://traffic-management-backend.onrender.com"); // Change URL if deployed
+
         socket.on("showAlert", (data) => {
-            alert(`🚨 Emergency Alert at (${data.location.lat}, ${data.location.lng})`);
+            alert(data.message);
         });
 
-        // Report an incident with location
-        document.getElementById("report-incident-btn").addEventListener("click", async () => {
-            const type = document.getElementById("incident-type").value;
-            const description = document.getElementById("incident-description").value;
-            
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(async (position) => {
-                    const { latitude, longitude } = position.coords;
-                    const response = await fetch("/reportIncident", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ type, description, location: { lat: latitude, lng: longitude } })
-                    });
-                    const data = await response.json();
-                    alert(data.message);
-                });
-            } else {
-                alert("❌ Location access required to report incidents.");
-            }
+        document.getElementById("alert-btn")?.addEventListener("click", () => {
+            socket.emit("emergencyAlert", { message: "Emergency Alert Sent!" });
         });
 
-        function initMap() {
-            navigator.geolocation.getCurrentPosition((position) => {
-                const { latitude, longitude } = position.coords;
-                const map = new google.maps.Map(document.getElementById("map"), {
-                    center: { lat: latitude, lng: longitude },
-                    zoom: 14,
-                });
-
-                new google.maps.Marker({
-                    position: { lat: latitude, lng: longitude },
-                    map: map,
-                    title: "Your Location",
-                    icon: {
-                        url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                        scaledSize: new google.maps.Size(40, 40),
-                    },
-                });
-            });
-        }
+        socket.emit("joinPage", "dashboard");
     </script>
 </body>
 </html>
+

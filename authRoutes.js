@@ -73,7 +73,6 @@ router.post("/login", async (req, res) => {
 
 
 
-
 // ✅ Fetch Current User Role (For Frontend)
 router.get("/user", async (req, res) => {
     try {
