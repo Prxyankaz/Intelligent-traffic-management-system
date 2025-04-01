@@ -233,6 +233,17 @@
                 });
             });
         }
+        
+        socket.on("showAlert", (data) => {
+            alert(data.message);
+        });
+
+        document.getElementById("alert-btn")?.addEventListener("click", () => {
+            socket.emit("emergencyAlert", { message: "Emergency Alert Sent!" });
+        });
+
+        socket.emit("joinPage", "dashboard");
+
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async></script>
 </body>
