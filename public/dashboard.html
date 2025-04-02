@@ -279,14 +279,7 @@
 
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script>
-        navigator.geolocation.getCurrentPosition(
-  (position) => {
-    const { latitude, longitude } = position.coords;
-    console.log(`User Location: ${latitude}, ${longitude}`);
-    initMap(latitude, longitude);
-  },
-  (error) => console.error("Error getting location:", error)
-);
+       
 
         // Redirect if not logged in
         if (!localStorage.getItem("token")) {
