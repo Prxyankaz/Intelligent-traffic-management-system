@@ -6,8 +6,9 @@
     <title>Traffic Management System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css"> 
     <style>
+        /* General Page Styling */
         body {
             margin: 0;
             padding: 0;
@@ -17,7 +18,8 @@
             color: white;
             overflow-x: hidden;
         }
-
+        
+        /* Navigation Bar */
         nav {
             position: fixed;
             top: 0;
@@ -30,7 +32,7 @@
             backdrop-filter: blur(10px);
             z-index: 1000;
         }
-
+        
         .logo {
             font-family: 'Orbitron', sans-serif;
             font-size: 22px;
@@ -38,50 +40,56 @@
             letter-spacing: 2px;
             color: #ffcc00;
         }
-
+        
+        /* Menu for larger screens */
         nav ul {
             list-style: none;
             display: flex;
             gap: 20px;
             align-items: center;
         }
-
+        
         nav ul li {
             display: inline-block;
         }
-
+        
         nav ul li a, #logout-btn {
             text-decoration: none;
             color: white;
             font-size: 16px;
-            padding: 10px 15px;
             transition: 0.3s;
             text-transform: uppercase;
             background: none;
             border: none;
             cursor: pointer;
+            padding: 10px 15px;
         }
-
+        
         nav ul li a:hover, #logout-btn:hover {
             color: #ffcc00;
         }
-
+        
+        /* Mobile Menu */
         .menu-icon {
             display: none;
             font-size: 24px;
             cursor: pointer;
             color: white;
         }
-
+        
         #menu-toggle {
             display: none;
         }
-
+        
         @media screen and (max-width: 768px) {
+            nav {
+                padding: 15px 20px;
+            }
+            
             .menu-icon {
                 display: block;
             }
-
+        
             nav ul {
                 display: none;
                 flex-direction: column;
@@ -94,21 +102,27 @@
                 text-align: center;
                 padding: 10px;
             }
-
+        
             #menu-toggle:checked + ul {
                 display: flex;
             }
+        
+            nav ul li {
+                margin: 10px 0;
+            }
         }
-
+        
+        /* Hero Section */
         .hero {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100vh;
             text-align: center;
+            padding: 0 20px;
             flex-direction: column;
         }
-
+        
         .hero h1 {
             font-family: 'Orbitron', sans-serif;
             font-size: clamp(2rem, 5vw, 3.5rem);
@@ -118,7 +132,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
+        
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+        }
+        
+        /* Emergency Alert Button */
         #alert-btn {
             background: red;
             color: white;
@@ -127,91 +146,112 @@
             border-radius: 5px;
             font-size: 18px;
             cursor: pointer;
+            margin-top: 10px;
         }
-
+        
+        #alert-btn:hover {
+            background: darkred;
+        }
+        
+        /* Responsive Map */
         #map {
             width: 100%;
             max-width: 900px;
             height: 400px;
             margin: 50px auto 20px;
             border-radius: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .live-traffic {
+            text-align: center;
+            padding: 50px 20px;
+            position: relative;
+        }
+        
+        .live-traffic h2 {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            z-index: 2;
+        }
+        
+        /* Adjustments for Mobile Screens */
+        @media screen and (max-width: 600px) {
+            .hero {
+                height: 80vh;
+            }
+        
+            #map {
+                height: 300px;
+            }
+        
+            #alert-btn {
+                width: 100%;
+                font-size: 16px;
+            }
         }
     </style>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // Check login status
-            if (!localStorage.getItem("token")) {
-                window.location.href = "index.html";
-            }
-
-            // Logout functionality
-            document.getElementById("logout-btn").addEventListener("click", () => {
-                localStorage.removeItem("token");
-                window.location.href = "index.html";
-            });
-
-            // WebSocket Connection
-            const socket = io("https://traffic-management-backend.onrender.com");
-            socket.on("showAlert", (data) => {
-                alert(data.message);
-            });
-
-            document.getElementById("alert-btn")?.addEventListener("click", () => {
-                socket.emit("emergencyAlert", { message: "Emergency Alert Sent!" });
-            });
-
-            socket.emit("joinPage", "dashboard");
-
-            // Fetch API key and request geolocation
-            fetch('https://traffic-management-backend.onrender.com/api/maps-key')
-                .then(response => response.json())
-                .then(data => {
-                    const script = document.createElement('script');
-                    script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&callback=requestLocation&libraries=places`;
-                    script.async = true;
-                    script.defer = true;
-                    document.head.appendChild(script);
-                })
-                .catch(error => console.error('Error loading API key:', error));
-        });
-
-        // Request user's location
-        function requestLocation() {
+        fetch('https://traffic-management-backend.onrender.com/api/maps-key')
+        .then(response => response.json())
+        .then(data => {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&callback=initMap&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+    
+            // Get user location AFTER API loads
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
-                    console.log("User Location:", latitude, longitude);
-                    initMap(latitude, longitude);
+                    console.log(`User Location: ${latitude}, ${longitude}`);
+                    window.initMap = () => initMap(latitude, longitude); // Set global function with coordinates
                 },
                 (error) => {
                     console.error("Geolocation error:", error);
-                    alert("Location access denied or unavailable.");
+                    alert("Location access denied or unavailable. Please enable location services.");
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
-        }
-
-        // Initialize Google Map
-        function initMap(latitude, longitude) {
-            const map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: latitude, lng: longitude },
-                zoom: 14,
-            });
-
-            // User location marker
-            new google.maps.Marker({
-                position: { lat: latitude, lng: longitude },
-                map: map,
-                title: "Your Location",
-                icon: {
-                    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                    scaledSize: new google.maps.Size(40, 40),
+        })
+        .catch(error => console.error('Error loading API key:', error));
+    
+        function initMap() {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    console.log(`User Location: ${latitude}, ${longitude}`);
+    
+                    // Initialize map
+                    const map = new google.maps.Map(document.getElementById("map"), {
+                        center: { lat: latitude, lng: longitude },
+                        zoom: 14,
+                    });
+    
+                    // Add User Location Marker
+                    new google.maps.Marker({
+                        position: { lat: latitude, lng: longitude },
+                        map: map,
+                        title: "Your Location",
+                        icon: {
+                            url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", // Custom blue icon
+                            scaledSize: new google.maps.Size(40, 40), // Adjust size
+                        },
+                    });
+    
+                    // Add Traffic Layer
+                    const trafficLayer = new google.maps.TrafficLayer();
+                    trafficLayer.setMap(map);
                 },
-            });
-
-            // Add Traffic Layer
-            const trafficLayer = new google.maps.TrafficLayer();
-            trafficLayer.setMap(map);
+                (error) => console.error("Error getting location:", error)
+            );
         }
     </script>
 </head>
@@ -228,13 +268,15 @@
             <li><button id="logout-btn">Logout</button></li>
         </ul>
     </nav>
-
+    
     <header class="hero">
-        <h1>Smart Traffic Management</h1>
-        <p>Real-time traffic monitoring, emergency alerts, and traffic analysis powered by AI.</p>
-        <button id="alert-btn">Send Emergency Alert</button>
+        <div class="hero-text">
+            <h1>Smart Traffic Management</h1>
+            <p>Real-time traffic monitoring, emergency vehicle alerts, and traffic analysis powered by advanced AI.</p>
+            <button class="button">Explore Now</button>
+        </div>
     </header>
-
+    
     <main>
         <section class="live-traffic">
             <h2>Live Traffic Map</h2>
@@ -243,5 +285,40 @@
     </main>
 
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        navigator.geolocation.getCurrentPosition(
+  (position) => {
+    const { latitude, longitude } = position.coords;
+    console.log(`User Location: ${latitude}, ${longitude}`);
+    initMap(latitude, longitude);
+  },
+  (error) => console.error("Error getting location:", error)
+);
+
+        // Redirect if not logged in
+        if (!localStorage.getItem("token")) {
+            window.location.href = "index.html";
+        }
+
+        // Logout functionality
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            localStorage.removeItem("token");
+            window.location.href = "index.html";
+        });
+
+        // WebSocket Connection
+        const socket = io("https://traffic-management-backend.onrender.com"); // Change URL if deployed
+
+        socket.on("showAlert", (data) => {
+            alert(data.message);
+        });
+
+        document.getElementById("alert-btn")?.addEventListener("click", () => {
+            socket.emit("emergencyAlert", { message: "Emergency Alert Sent!" });
+        });
+
+        socket.emit("joinPage", "dashboard");
+    </script>
 </body>
 </html>
+
