@@ -56,6 +56,9 @@ app.get("/api/maps-key", (req, res) => {
 app.post("/api/incidents", async (req, res) => {
     try {
         const { description, latitude, longitude } = req.body;
+        if (!description || !latitude || !longitude) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
         const incident = new Incident({ description, latitude, longitude });
         await incident.save();
         res.status(201).json({ message: "Incident reported successfully" });
@@ -111,6 +114,8 @@ app.use((err, req, res, next) => {
     console.error("❌ Server Error:", err);
     res.status(500).json({ message: "Internal Server Error" });
 });
+
+
 
 // ✅ Start Server
 const PORT = process.env.PORT || 3000;
