@@ -16,7 +16,7 @@ The **Traffic Management System** is a web-based application designed to provide
 
 - **Frontend**: HTML, CSS, JavaScript
 - **Backend**: Node.js, Express.js
-- **Database**: Firebase Authentication (for user management)
+- **Database**: MongoDB Atlas Authentication (for user management)
 - **WebSockets**: Socket.io for real-time communication
 - **Maps API**: Google Maps API for live traffic visualization
 
@@ -28,8 +28,7 @@ Ensure you have the following installed:
 
 - Node.js & npm
 - A Google Maps API Key
-- A backend service running at `https://traffic-management-backend.onrender.com/`
-- [Visit service]([https://traffic-management-backend.onrender.com])
+- [Visit service](https://traffic-management-backend.onrender.com)
 
 ### Installation Steps
 
