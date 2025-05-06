@@ -10,7 +10,7 @@ The **Traffic Management System** is a web-based application designed to provide
 - **Emergency Vehicle Alert System**: Emergency vehicle drivers can send alerts to notify users about approaching vehicles.
 - **User Authentication**: Supports login/logout functionality.
 - **WebSockets Integration**: Enables real-time notifications using Socket.io.
-- **Responsive Design**: Works seamlessly across various devices.
+- **Responsive Design**: Works seamlessly across various devices. 
 
 ## Technologies Used
 
